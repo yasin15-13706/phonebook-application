@@ -1,0 +1,267 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+#include<stdlib.h>
+
+struct phonebook
+{
+    char fullname[35];
+    long int contact_no;
+    };
+void menu();
+void gt();
+void strt();
+void bck();
+void add_info();
+void list_info();
+void update_info();
+void delete_info();
+void search_info();
+int main()
+{
+    system("color 70");
+    strt();
+    return 0;
+}
+void bck()
+{
+    strt();
+}
+void strt()
+{
+    menu();
+}
+void menu()
+{
+    system("cls");
+printf("\t\t**********WELCOME TO PHONEBOOK**********");
+
+printf("\n\n\t\t\t  MENU\t\t\n\n");
+printf("1.Add New   \t\t\t\t\n2.List   \t\t\t\t\n3.Exit  \t\t\t\t\n4.Modify \t\t\t\t\n5.Search \t\t\t\t\n6.Delete\t\t\t\t\t\n\n");
+printf("\n\t\Please Enter the Number you Want to Choose");
+switch(getch())
+{
+    case '1':
+                add_info();
+    break;
+   case '2': list_info();
+    break;
+    case '3': exit(0);
+    break;
+    case '4': update_info();
+    break;
+    case '5': search_info();
+    break;
+    case '6': delete_info();
+    break;
+    default:
+                system("cls");
+                printf("\nEnter 1 to 6 only");
+                printf("\n Enter any key");
+                getch();
+menu();
+}
+}
+        void add_info()
+{
+        system("cls");
+        FILE *files;
+        struct phonebook x;
+        files=fopen("project","ab+");
+        printf("\n Enter Name: ");
+        gt(x.fullname);
+        printf("\nEnter Contact Number.:");
+        scanf("%ld",&x.contact_no);
+        fwrite(&x,sizeof(x),1,files);
+      fflush(stdin);
+        printf("\nNew Record Has Been Successfully Saved");
+fclose(files);
+    printf("\n\nEnter any key");
+	 getch();
+    system("cls");
+    menu();
+}
+void list_info()
+{
+    struct phonebook x;
+    FILE *files;
+files=fopen("project","rb");
+if(files==NULL)
+{
+printf("\nfile opening error in listing :");
+exit(1);
+}
+while(fread(&x,sizeof(x),1,files)==1)
+{
+     printf("\n\n\n YOUR RECORD INFORMATION IS\n\n ");
+        printf("\nName=%s\nMobile no=%ld",x.fullname,x.contact_no);
+	 getch();
+	 system("cls");
+}
+fclose(files);
+ printf("\n Enter any key");
+ getch();
+    system("cls");
+menu();
+}
+void search_info()
+{
+    struct phonebook x;
+FILE *files;
+char name[100];
+files=fopen("project","rb");
+if(files==NULL)
+{
+    printf("\n error in opening\a\a\a\a");
+    exit(1);
+}
+printf("\nEnter the Name of Person you want to Search\n");
+gt(name);
+while(fread(&x,sizeof(x),1,files)==1)
+{
+    if(strcmp(x.fullname,name)==0)
+    {
+        printf("\n\tDetail Information About %s",name);
+        printf("\nName:%s\nMobile no:%ld",x.fullname,x.contact_no);
+    }
+        else
+        printf("file not found");
+}
+ fclose(files);
+  printf("\n Enter any key");
+
+	 getch();
+    system("cls");
+menu();
+}
+void delete_info()
+{
+    struct phonebook x;
+    FILE *files,*file_temp;
+	int fl;
+	char name[100];
+	files=fopen("project","rb");
+	if(files==NULL)
+		{
+			printf("CONTACT'S DATA NOT ADDED YET.");
+
+		}
+	else
+	{
+		file_temp=fopen("temp","wb+");
+		if(file_temp==NULL)
+
+            printf("file opaning error");
+		else
+        {
+		printf("Enter CONTACT'S NAME:");
+		gt(name);
+
+		fflush(stdin);
+		while(fread(&x,sizeof(x),1,files)==1)
+		{
+			if(strcmp(x.fullname,name)!=0)
+				fwrite(&x,sizeof(x),1,file_temp);
+			if(strcmp(x.fullname,name)==0)
+                fl=1;
+		}
+	fclose(files);
+	fclose(file_temp);
+	if(fl!=1)
+	{
+		printf("NO CONACT'S RECORD TO DELETE.");
+		remove("temp.txt");
+	}
+		else
+		{
+			remove("project");
+			rename("temp.txt","project");
+			printf("RECORD DELETED SUCCESSFULLY.");
+		}
+	}
+}
+ printf("\n Enter any key");
+
+	 getch();
+    system("cls");
+menu();
+}
+void update_info()
+{
+    int b;
+    FILE *files;
+    int fl=0;
+    struct phonebook x,y;
+	char  name[50];
+	files=fopen("project","rb+");
+	if(files==NULL)
+		{
+			printf("CONTACT'S DATA NOT ADDED YET.");
+			exit(1);
+		}
+	else
+	{
+	    system("cls");
+		printf("\nEnter CONTACT'S NAME TO MODIFY:\n");
+            gt(name);
+            while(fread(&x,sizeof(x),1,files)==1)
+            {
+                if(strcmp(name,x.fullname)==0)
+                {
+                    printf("\n Enter Name:");
+                    gt(y.fullname);
+                    printf("\nEnter Contact Number:");
+                    scanf("%ld",&y.contact_no);
+                    fseek(files,-sizeof(x),SEEK_CUR);
+                    fwrite(&y,sizeof(x),1,files);
+                    fl=1;
+                    break;
+                }
+                fflush(stdin);
+            }
+            if(fl==1)
+            {
+                printf("\n your data id modified");
+            }
+            else
+            {
+                    printf(" \n data is not found");
+            }
+            fclose(files);
+	}
+	 printf("\n Enter any key");
+	 getch();
+    system("cls");
+	menu();
+
+}
+void gt(char *name)
+{
+
+   int l=0,k;
+    char o,cha;
+    do
+    {
+        o=getch();
+                if(o!=8&&o!=13)
+                {
+                    *(name+l)=o;
+                        putch(o);
+                        l++;
+                }
+                if(o==8)
+                {
+                    if(l>0)
+                    {
+                        l--;
+                    }
+                    system("cls");
+                    for(k=0;k<l;k++)
+                    {
+                        cha=*(name+k);
+                        putch(cha);
+                    }
+                }
+    }while(o!=13);
+      *(name+l)='\0';
+}
